@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shringar Sundar — Laddu Gopal Poshak & Singhar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Marcellus&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root{
+    --maroon:#7A1F2B;
+    --maroon-deep:#5A1620;
+    --gold:#C9A227;
+    --gold-soft:#E8D8A8;
+    --peacock:#0E5C55;
+    --ivory:#FBF3E7;
+    --ink:#2B211C;
+    --blush:#F1D9C9;
+    --radius-arch: 200px 200px 8px 8px;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--ivory); color:var(--ink); font-family:'Jost', sans-serif; font-weight:400; }
+  h1,h2,h3,.display{ font-family:'Marcellus', serif; letter-spacing:0.02em; }
+  .eyebrow{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:1.05rem; color:var(--gold); letter-spacing:0.06em; }
+
+  /* ---------- HEADER ---------- */
+  header{ position:relative; background:radial-gradient(ellipse at top, rgba(201,162,39,0.15), transparent 60%), var(--maroon); color:var(--ivory); padding:64px 24px 120px; text-align:center; overflow:hidden; }
+  header::before{ content:""; position:absolute; inset:0; background-image:repeating-linear-gradient(45deg, rgba(201,162,39,0.06) 0 2px, transparent 2px 40px), repeating-linear-gradient(-45deg, rgba(201,162,39,0.06) 0 2px, transparent 2px 40px); pointer-events:none; }
+  .brand-mark{ font-size:0.85rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:18px; }
+  header h1{ font-size:clamp(2.4rem, 6vw, 4rem); margin:0 0 10px; color:var(--ivory); }
+  header p.tagline{ font-family:'Cormorant Garamond', serif; font-size:1.35rem; font-style:italic; color:var(--gold-soft); margin:0 auto 36px; max-width:520px; }
+  .arch-hero{ width:220px; height:260px; margin:0 auto; background:linear-gradient(180deg, var(--blush), var(--gold-soft)); border-radius:110px 110px 6px 6px; border:3px solid var(--gold); position:relative; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 8px rgba(251,243,231,0.08), 0 20px 40px rgba(0,0,0,0.25); }
+  .arch-hero svg{ width:110px; height:130px; }
+  .cta-row{ margin-top:40px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:8px; padding:12px 26px; border-radius:999px; font-family:'Jost',sans-serif; font-weight:500; font-size:0.95rem; text-decoration:none; cursor:pointer; border:1px solid transparent; transition:transform .15s ease; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn-gold{ background:var(--gold); color:var(--maroon-deep); }
+  .btn-outline{ background:transparent; color:var(--ivory); border-color:var(--gold-soft); }
+
+  /* ---------- STATUS BANNER ---------- */
+  .status-banner{ text-align:center; font-size:0.82rem; padding:10px 16px; }
+  .status-demo{ background:#fff4d6; color:#7a5a00; }
+  .status-error{ background:#ffe1e1; color:#8a1f1f; }
+  .status-banner a{ color:inherit; text-decoration:underline; }
+
+  /* ---------- NAV ---------- */
+  nav.cat-nav{ position:sticky; top:0; z-index:20; background:var(--ivory); border-bottom:1px solid var(--blush); display:flex; gap:6px; padding:14px 20px; overflow-x:auto; justify-content:center; }
+  nav.cat-nav button{ font-family:'Jost',sans-serif; font-size:0.9rem; letter-spacing:0.03em; padding:9px 18px; border-radius:999px; border:1px solid var(--maroon); background:transparent; color:var(--maroon); cursor:pointer; white-space:nowrap; transition:all .15s ease; }
+  nav.cat-nav button.active, nav.cat-nav button:hover{ background:var(--maroon); color:var(--ivory); }
+
+  /* ---------- SECTIONS ---------- */
+  section.cat-section{ padding:56px 24px 20px; max-width:1200px; margin:0 auto; }
+  .cat-heading{ text-align:center; margin-bottom:36px; }
+  .cat-heading h2{ font-size:2.1rem; color:var(--maroon-deep); margin:6px 0 8px; }
+  .cat-heading .rule{ width:60px; height:2px; background:var(--gold); margin:0 auto 14px; }
+  .cat-heading p{ color:#6b5a4e; max-width:480px; margin:0 auto; font-size:0.95rem; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:32px 24px; }
+
+  .card{ background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 6px 20px rgba(90,22,32,0.08); display:flex; flex-direction:column; position:relative; }
+  .card.out-of-stock .arch-frame{ filter:grayscale(0.6) brightness(0.9); }
+  .oos-ribbon{ position:absolute; top:16px; left:-32px; background:var(--maroon); color:#fff; font-size:0.72rem; letter-spacing:0.05em; padding:5px 40px; transform:rotate(-40deg); box-shadow:0 2px 6px rgba(0,0,0,0.25); z-index:5; text-transform:uppercase; }
+
+  .arch-frame{ background:linear-gradient(160deg, var(--blush), #fff 70%); border-radius:var(--radius-arch); margin:20px 20px 0; aspect-ratio:3/4; position:relative; overflow:hidden; border:2px solid var(--gold-soft); }
+  .arch-frame svg{ width:55%; height:55%; opacity:0.85; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+  .placeholder-note{ position:absolute; bottom:8px; left:0; right:0; text-align:center; font-size:0.62rem; color:#b89a6a; letter-spacing:0.05em; text-transform:uppercase; z-index:2; }
+
+  .carousel{ position:absolute; inset:0; }
+  .carousel-track{ display:flex; height:100%; transition:transform .3s ease; touch-action:pan-y; }
+  .carousel-track img{ width:100%; height:100%; object-fit:contain; flex-shrink:0; background:transparent; }
+  .carousel-dots{ position:absolute; bottom:10px; left:0; right:0; display:flex; justify-content:center; gap:6px; z-index:3; }
+  .carousel-dots span{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.6); border:1px solid rgba(90,22,32,0.4); }
+  .carousel-dots span.active{ background:var(--maroon); }
+  .carousel-arrow{ position:absolute; top:50%; transform:translateY(-50%); background:rgba(251,243,231,0.85); border:none; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:0.9rem; color:var(--maroon-deep); z-index:3; display:flex; align-items:center; justify-content:center; }
+  .carousel-arrow.prev{ left:8px; } .carousel-arrow.next{ right:8px; }
+
+  .card-body{ padding:16px 20px 20px; display:flex; flex-direction:column; gap:10px; flex:1; }
+  .card-body h3{ font-size:1.15rem; margin:0; color:var(--maroon-deep); }
+  .desc{ font-size:0.85rem; color:#6b5a4e; line-height:1.4; min-height:38px; }
+  .price{ font-family:'Cormorant Garamond', serif; font-size:1.3rem; color:var(--peacock); font-weight:600; }
+  select.size-select{ font-family:'Jost',sans-serif; padding:9px 10px; border-radius:8px; border:1px solid var(--blush); background:#fffaf3; color:var(--ink); font-size:0.85rem; }
+  .wa-btn{ margin-top:6px; display:flex; align-items:center; justify-content:center; gap:8px; background:#1e8a5f; color:#fff; padding:10px; border-radius:8px; text-decoration:none; font-size:0.88rem; font-weight:500; }
+  .wa-btn:hover{ background:#166e4b; }
+  .wa-btn.oos{ background:#8a7666; }
+
+  /* ---------- SIZE GUIDE ---------- */
+  .size-guide{ background:var(--peacock); color:var(--ivory); margin:70px 0 0; padding:40px 24px; text-align:center; }
+  .size-guide h3{ color:var(--gold-soft); margin-bottom:18px; }
+  .size-table{ display:flex; flex-wrap:wrap; justify-content:center; gap:14px; max-width:900px; margin:0 auto; }
+  .size-chip{ background:rgba(251,243,231,0.08); border:1px solid rgba(201,162,39,0.5); border-radius:10px; padding:10px 16px; font-size:0.85rem; min-width:110px; }
+  .size-chip b{ display:block; color:var(--gold-soft); font-family:'Marcellus',serif; font-size:1.1rem; }
+
+  footer{ text-align:center; padding:40px 24px 50px; color:#8a7666; font-size:0.85rem; }
+  footer .rule{ width:40px; height:1px; background:var(--gold); margin:0 auto 14px; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+  EDIT THESE FIVE LINES to make the site yours. Nothing else in
+  this file needs to change for day-to-day running of the shop.
+============================================================= -->
+<script>
+const CONFIG = {
+  brandName: "Shringar Sundar",                 // your business name
+  tagline: "Poshak, Mukut & Singhar for your Laddu Gopal — stitched by hand, sized to your idol.",
+  waNumber: "910000000000",                     // WhatsApp number, country code, no + or spaces
+  footerLine: "Made to order · Ships across India",
+  // Paste your published Google Sheet CSV link here (see setup guide). Leave as-is to see demo data.
+  sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRGuhenfnTO57aFf6AP5Opj229EzwcUApik_Wnj_yJa5oZ4LTPx9WjO0ot1a6DwMMU6ErlFmQEszcv/pub?gid=2018736595&single=true&output=csv"
+};
+</script>
+
+<header>
+  <div class="brand-mark">Est. 2026 · Handmade with Bhaav</div>
+  <h1 id="brandTitle">Shringar Sundar</h1>
+  <p class="tagline" id="brandTagline">Poshak, Mukut &amp; Singhar for your Laddu Gopal.</p>
+  <div class="arch-hero">
+    <svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 10 C30 10 25 30 25 45 L25 100 C25 108 32 112 40 112 H60 C68 112 75 108 75 100 L75 45 C75 30 70 10 50 10Z" fill="#7A1F2B" opacity="0.85"/>
+      <circle cx="50" cy="34" r="9" fill="#C9A227"/>
+      <path d="M40 55 Q50 45 60 55 L60 90 Q50 96 40 90 Z" fill="#E8D8A8"/>
+    </svg>
+  </div>
+  <div class="cta-row">
+    <a class="btn btn-gold" href="#poshak">Browse Poshak</a>
+    <a class="btn btn-outline" id="headerWaBtn" href="#" target="_blank">Chat on WhatsApp</a>
+  </div>
+</header>
+
+<div id="statusBanner"></div>
+
+<nav class="cat-nav" id="catNav"></nav>
+<main id="catalogueRoot"></main>
+
+<div class="size-guide">
+  <h3 class="display">Idol Size Guide</h3>
+  <div class="size-table">
+    <div class="size-chip"><b>No. 0</b>2–3 in idol</div>
+    <div class="size-chip"><b>No. 1</b>3–4 in idol</div>
+    <div class="size-chip"><b>No. 2</b>4–5 in idol</div>
+    <div class="size-chip"><b>No. 3</b>5–6 in idol</div>
+    <div class="size-chip"><b>No. 4</b>6–7 in idol</div>
+    <div class="size-chip"><b>No. 5</b>7–9 in idol</div>
+    <div class="size-chip"><b>Custom</b>share height on WhatsApp</div>
+  </div>
+</div>
+
+<footer>
+  <div class="rule"></div>
+  <span id="footerBrand">Shringar Sundar</span> &nbsp;·&nbsp; <span id="footerLine">Made to order · Ships across India</span>
+</footer>
+
+<script>
+document.getElementById("brandTitle").textContent = CONFIG.brandName;
+document.getElementById("brandTagline").textContent = CONFIG.tagline;
+document.getElementById("footerBrand").textContent = CONFIG.brandName;
+document.getElementById("footerLine").textContent = CONFIG.footerLine;
+document.getElementById("headerWaBtn").href = `https://wa.me/${CONFIG.waNumber}?text=${encodeURIComponent("Jai Shree Krishna! I'd like to see your full catalogue.")}`;
+document.title = CONFIG.brandName + " — Laddu Gopal Poshak & Singhar";
+
+const iconSets = {
+  poshak: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 8c-14 0-16 14-16 22l-6 55c0 6 6 7 22 7s22-1 22-7l-6-55c0-8-2-22-16-22z" fill="#7A1F2B"/><path d="M50 8c-6 0-9 5-9 12h18c0-7-3-12-9-12z" fill="#C9A227"/></svg>`,
+  mukut: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M15 70 L20 35 L38 55 L50 25 L62 55 L80 35 L85 70 Z" fill="#C9A227"/><rect x="15" y="70" width="70" height="10" rx="2" fill="#7A1F2B"/><circle cx="50" cy="30" r="5" fill="#0E5C55"/></svg>`,
+  singhar: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="10" fill="#C9A227"/><path d="M30 32 Q50 65 70 32" stroke="#C9A227" stroke-width="4" fill="none"/><circle cx="50" cy="66" r="8" fill="#7A1F2B"/></svg>`,
+  bansuri: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="46" width="70" height="8" rx="4" fill="#8a5a2b" transform="rotate(-20 50 50)"/><circle cx="30" cy="40" r="2" fill="#3a2410" transform="rotate(-20 50 50)"/><circle cx="42" cy="45" r="2" fill="#3a2410" transform="rotate(-20 50 50)"/><circle cx="54" cy="50" r="2" fill="#3a2410" transform="rotate(-20 50 50)"/></svg>`,
+  accessories: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="55" rx="35" ry="20" fill="#E8D8A8" stroke="#C9A227" stroke-width="2"/><ellipse cx="50" cy="50" rx="35" ry="20" fill="#0E5C55"/></svg>`,
+  default: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="30" fill="#C9A227"/></svg>`
+};
+
+const CATEGORY_META = {
+  poshak:       {label:"Poshak",              eyebrow:"Season · Festive", desc:"Each poshak is stitched to your Thakurji's exact size number. Select size before enquiring — no fitting surprises."},
+  mukut:        {label:"Mukut",               eyebrow:"Shringar",         desc:"Crowns in kundan, moti and meenakari work — matched to poshak size, not idol size."},
+  singhar:      {label:"Singhar · Jewellery", eyebrow:"Shringar",         desc:"Haar, kamarbandh, bajuband and payal sets — sold individually or as full singhar sets."},
+  bansuri:      {label:"Bansuri",              eyebrow:"Signature",        desc:"Hand-finished flutes in wood and metal tones, sized to sit naturally in Thakurji's hands."},
+  accessories:  {label:"Accessories",          eyebrow:"Everyday",         desc:"Asan, jhula bedding, thalis and other everyday seva essentials."}
+};
+const CATEGORY_ORDER = ["poshak","mukut","singhar","bansuri","accessories"];
+
+const DEMO_PRODUCTS = [
+  {category:"poshak", name:"Peacock Silk Poshak", description:"Raw silk, gota border, peacock motif dupatta", price:"", size_prices:"No.0-₹349, No.1-₹399, No.2-₹449, No.3-₹499, No.4-₹549, No.5-₹649", size_photos:"", has_size:"TRUE", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {category:"poshak", name:"Bandhani Festive Set", description:"Cotton-silk bandhani with matching pagdi", price:"", size_prices:"No.0-₹299, No.1-₹349, No.2-₹399, No.3-₹449", size_photos:"", has_size:"TRUE", photos:"", in_stock:"FALSE", active:"TRUE"},
+  {category:"mukut", name:"Kundan Mukut", description:"Kundan stone work with hanging pearls", price:"₹349", has_size:"FALSE", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {category:"singhar", name:"Full Singhar Set", description:"Haar + kamarbandh + bajuband + payal", price:"₹449", has_size:"FALSE", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {category:"bansuri", name:"Classic Wood Bansuri", description:"Sandalwood finish, sized for No.2–4 idols", price:"₹99", has_size:"FALSE", photos:"", in_stock:"TRUE", active:"TRUE"}
+];
+
+function truthy(v){ return /^(true|yes|1|in stock)$/i.test(String(v||"").trim()); }
+
+// Builds a reusable photo frame. Call .setPhotos("url1,url2") to (re)populate it —
+// used both for the initial render and whenever the buyer changes size.
+function createPhotoFrame(iconKey){
+  const wrap = document.createElement("div");
+  wrap.className = "arch-frame";
+  const inner = document.createElement("div");
+  inner.style.position = "absolute";
+  inner.style.inset = "0";
+  wrap.appendChild(inner);
+
+  function setPhotos(photosStr){
+    inner.innerHTML = "";
+    const list = (photosStr||"").split(",").map(s=>s.trim()).filter(Boolean);
+
+    if(list.length === 0){
+      inner.innerHTML = `${iconSets[iconKey] || iconSets.default}<div class="placeholder-note">your product photo here</div>`;
+      return;
+    }
+
+    const carousel = document.createElement("div");
+    carousel.className = "carousel";
+    const track = document.createElement("div");
+    track.className = "carousel-track";
+    list.forEach(src => {
+      const img = document.createElement("img");
+      img.src = src; img.loading = "lazy"; img.alt = "";
+      track.appendChild(img);
+    });
+    carousel.appendChild(track);
+
+    let idx = 0, dotsEl = null;
+    function go(i){
+      idx = (i + list.length) % list.length;
+      track.style.transform = `translateX(-${idx*100}%)`;
+      if(dotsEl) [...dotsEl.children].forEach((d,di)=>d.classList.toggle("active", di===idx));
+    }
+
+    if(list.length > 1){
+      dotsEl = document.createElement("div");
+      dotsEl.className = "carousel-dots";
+      list.forEach((_,i)=>{ const d=document.createElement("span"); if(i===0) d.classList.add("active"); dotsEl.appendChild(d); });
+      carousel.appendChild(dotsEl);
+
+      const prev = document.createElement("button"); prev.className="carousel-arrow prev"; prev.innerHTML="‹";
+      const next = document.createElement("button"); next.className="carousel-arrow next"; next.innerHTML="›";
+      prev.onclick = ()=>go(idx-1); next.onclick = ()=>go(idx+1);
+      carousel.appendChild(prev); carousel.appendChild(next);
+
+      let startX = null;
+      carousel.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+      carousel.addEventListener("touchend", e => {
+        if(startX===null) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        if(dx > 40) go(idx-1); else if(dx < -40) go(idx+1);
+        startX = null;
+      });
+    }
+    inner.appendChild(carousel);
+  }
+
+  return {element: wrap, setPhotos};
+}
+
+// Parses a size_photos cell like "No.0-url1,url2; No.1-url3,url4" into [{label, photos}]
+function parseSizePhotos(str){
+  return (str||"").split(";").map(chunk => {
+    const idx = chunk.indexOf("-");
+    if(idx === -1) return null;
+    const label = chunk.slice(0, idx).trim();
+    const photos = chunk.slice(idx+1).trim();
+    if(!label) return null;
+    return {label, photos};
+  }).filter(Boolean);
+}
+
+// Parses a size_prices cell like "No.0-299, No.1-349, No.2-399" into [{label,price}]
+function parseSizePrices(str){
+  return (str||"").split(",").map(pair => {
+    const idx = pair.indexOf("-");
+    if(idx === -1) return null;
+    const label = pair.slice(0, idx).trim();
+    const price = pair.slice(idx+1).trim();
+    if(!label || !price) return null;
+    return {label, price};
+  }).filter(Boolean);
+}
+
+const DEFAULT_SIZES = ["No.0","No.1","No.2","No.3","No.4","No.5","Custom"];
+
+function buildCard(item){
+  const cat = (item.category||"").trim().toLowerCase();
+  const inStock = truthy(item.in_stock);
+  const hasSize = truthy(item.has_size);
+  const sizePrices = hasSize ? parseSizePrices(item.size_prices) : [];
+  const sizePhotos = hasSize ? parseSizePhotos(item.size_photos) : [];
+  const usingPerSizePrice = sizePrices.length > 0;
+
+  const cardEl = document.createElement("div");
+  cardEl.className = "card" + (inStock ? "" : " out-of-stock");
+
+  if(!inStock){
+    const ribbon = document.createElement("div");
+    ribbon.className = "oos-ribbon";
+    ribbon.textContent = "Sold";
+    cardEl.appendChild(ribbon);
+  }
+
+  const photoFrame = createPhotoFrame(cat);
+  cardEl.appendChild(photoFrame.element);
+
+  function photosForLabel(label){
+    if(label){
+      const match = sizePhotos.find(sp => sp.label === label);
+      if(match && match.photos) return match.photos;
+    }
+    return item.photos || ""; // falls back to the general photos column
+  }
+
+  const initialLabel = usingPerSizePrice ? sizePrices[0].label : (hasSize ? DEFAULT_SIZES[2] : null);
+  photoFrame.setPhotos(photosForLabel(initialLabel));
+
+  const initialPrice = usingPerSizePrice ? sizePrices[0].price : (item.price || "");
+
+  let sizeOptionsHtml = "";
+  if(hasSize){
+    if(usingPerSizePrice){
+      sizeOptionsHtml = sizePrices.map((sp,i) =>
+        `<option value="${sp.label}" data-price="${sp.price}" ${i===0?"selected":""}>${sp.label} — ${sp.price}</option>`
+      ).join("");
+    } else {
+      sizeOptionsHtml = DEFAULT_SIZES.map((s,i) =>
+        `<option value="${s}" ${i===2?"selected":""}>${s}</option>`
+      ).join("");
+    }
+  }
+
+  const body = document.createElement("div");
+  body.className = "card-body";
+  body.innerHTML = `
+    <h3>${item.name || ""}</h3>
+    <p class="desc">${item.description || ""}</p>
+    <div class="price" id="price-${Math.random().toString(36).slice(2)}">${initialPrice}</div>
+    ${hasSize ? `<select class="size-select">${sizeOptionsHtml}</select>` : ""}
+    <a class="wa-btn ${inStock ? "" : "oos"}" target="_blank">
+      <span>💬</span> ${inStock ? "Enquire on WhatsApp" : "Notify me when back"}
+    </a>
+  `;
+  cardEl.appendChild(body);
+
+  const waBtn = body.querySelector(".wa-btn");
+  const sizeSelect = body.querySelector(".size-select");
+  const priceEl = body.querySelector(".price");
+
+  function currentPrice(){
+    if(usingPerSizePrice && sizeSelect){
+      const opt = sizeSelect.options[sizeSelect.selectedIndex];
+      return opt ? opt.dataset.price : initialPrice;
+    }
+    return item.price || "";
+  }
+
+  function updateWaLink(){
+    if(usingPerSizePrice) priceEl.textContent = currentPrice();
+    if(hasSize && sizeSelect) photoFrame.setPhotos(photosForLabel(sizeSelect.value));
+    let msg = inStock
+      ? `Jai Shree Krishna! I'm interested in the ${item.name}`
+      : `Jai Shree Krishna! Please let me know when the ${item.name} is back in stock`;
+    if(sizeSelect && inStock) msg += ` — size ${sizeSelect.value}`;
+    if(inStock){
+      const p = currentPrice();
+      if(p) msg += ` (${p})`;
+      msg += `. Please share more photos and availability.`;
+    }
+    waBtn.href = `https://wa.me/${CONFIG.waNumber}?text=${encodeURIComponent(msg)}`;
+  }
+  if(sizeSelect) sizeSelect.addEventListener("change", updateWaLink);
+  updateWaLink();
+
+  return cardEl;
+}
+
+function render(products){
+  const active = products.filter(p => truthy(p.active));
+  const nav = document.getElementById("catNav");
+  const root = document.getElementById("catalogueRoot");
+  nav.innerHTML = ""; root.innerHTML = "";
+
+  const grouped = {};
+  active.forEach(p => {
+    const cat = (p.category||"").trim().toLowerCase();
+    if(!cat) return;
+    (grouped[cat] = grouped[cat] || []).push(p);
+  });
+
+  const presentCats = CATEGORY_ORDER.filter(c => grouped[c] && grouped[c].length)
+    .concat(Object.keys(grouped).filter(c => !CATEGORY_ORDER.includes(c)));
+
+  if(presentCats.length === 0){
+    root.innerHTML = `<p style="text-align:center;padding:60px 20px;color:#8a7666;">No products marked active yet — check your Sheet's "active" column.</p>`;
+    return;
+  }
+
+  presentCats.forEach((cat, i) => {
+    const meta = CATEGORY_META[cat] || {label: cat.charAt(0).toUpperCase()+cat.slice(1), eyebrow:"", desc:""};
+
+    const btn = document.createElement("button");
+    btn.textContent = meta.label;
+    btn.dataset.target = cat;
+    if(i===0) btn.classList.add("active");
+    btn.onclick = () => document.getElementById("sec-"+cat).scrollIntoView({behavior:"smooth", block:"start"});
+    nav.appendChild(btn);
+
+    const section = document.createElement("section");
+    section.className = "cat-section";
+    section.id = "sec-" + cat;
+    section.innerHTML = `
+      <div class="cat-heading">
+        <p class="eyebrow">${meta.eyebrow}</p>
+        <h2>${meta.label}</h2>
+        <div class="rule"></div>
+        <p>${meta.desc}</p>
+      </div>
+      <div class="grid"></div>
+    `;
+    const grid = section.querySelector(".grid");
+    grouped[cat].forEach(item => grid.appendChild(buildCard(item)));
+    root.appendChild(section);
+  });
+
+  const navButtons = nav.querySelectorAll("button");
+  const sections = presentCats.map(c => document.getElementById("sec-"+c));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        navButtons.forEach(b => b.classList.remove("active"));
+        nav.querySelector(`button[data-target="${entry.target.id.replace('sec-','')}"]`).classList.add("active");
+      }
+    });
+  }, {rootMargin:"-40% 0px -50% 0px"});
+  sections.forEach(s => observer.observe(s));
+}
+
+function showBanner(type, html){
+  document.getElementById("statusBanner").innerHTML = `<div class="status-banner status-${type}">${html}</div>`;
+}
+
+function loadCatalogue(){
+  if(!CONFIG.sheetCsvUrl || CONFIG.sheetCsvUrl.includes("PASTE_YOUR")){
+    showBanner("demo", "Showing demo data — paste your published Google Sheet link into <code>CONFIG.sheetCsvUrl</code> to go live.");
+    render(DEMO_PRODUCTS);
+    return;
+  }
+  const bustCache = (CONFIG.sheetCsvUrl.includes("?") ? "&" : "?") + "_ts=" + Date.now();
+  fetch(CONFIG.sheetCsvUrl + bustCache, {cache: "no-store"})
+    .then(r => { if(!r.ok) throw new Error("fetch failed"); return r.text(); })
+    .then(csv => {
+      const parsed = Papa.parse(csv, {header:true, skipEmptyLines:true});
+      if(!parsed.data.length) throw new Error("empty sheet");
+      render(parsed.data);
+    })
+    .catch(() => {
+      showBanner("error", "Couldn't load your product Sheet right now — showing demo data instead. Check the Sheet is published and the link in <code>CONFIG.sheetCsvUrl</code> is correct.");
+      render(DEMO_PRODUCTS);
+    });
+}
+loadCatalogue();
+</script>
+
+</body>
+</html>
