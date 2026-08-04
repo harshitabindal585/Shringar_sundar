@@ -61,13 +61,13 @@
   .card.out-of-stock .arch-frame{ filter:grayscale(0.6) brightness(0.9); }
   .oos-ribbon{ position:absolute; top:16px; left:-32px; background:var(--maroon); color:#fff; font-size:0.72rem; letter-spacing:0.05em; padding:5px 40px; transform:rotate(-40deg); box-shadow:0 2px 6px rgba(0,0,0,0.25); z-index:5; text-transform:uppercase; }
 
-  .arch-frame{ background:linear-gradient(160deg, var(--blush), #fff 70%); border-radius:var(--radius-arch); margin:20px 20px 0; aspect-ratio:3/4; position:relative; overflow:hidden; border:2px solid var(--gold-soft); }
+  .arch-frame{ background:linear-gradient(160deg, var(--blush), #fff 70%); border-radius:var(--radius-arch); margin:20px 20px 0; aspect-ratio:1/1; position:relative; overflow:hidden; border:2px solid var(--gold-soft); }
   .arch-frame svg{ width:55%; height:55%; opacity:0.85; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
   .placeholder-note{ position:absolute; bottom:8px; left:0; right:0; text-align:center; font-size:0.62rem; color:#b89a6a; letter-spacing:0.05em; text-transform:uppercase; z-index:2; }
 
   .carousel{ position:absolute; inset:0; }
   .carousel-track{ display:flex; height:100%; transition:transform .3s ease; touch-action:pan-y; }
-  .carousel-track img{ width:100%; height:100%; object-fit:contain; flex-shrink:0; background:transparent; }
+  .carousel-track img{ width:100%; height:100%; object-fit:cover; flex-shrink:0; background:transparent; }
   .carousel-dots{ position:absolute; bottom:10px; left:0; right:0; display:flex; justify-content:center; gap:6px; z-index:3; }
   .carousel-dots span{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.6); border:1px solid rgba(90,22,32,0.4); }
   .carousel-dots span.active{ background:var(--maroon); }
