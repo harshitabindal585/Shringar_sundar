@@ -178,17 +178,19 @@ const CATEGORY_META = {
 const CATEGORY_ORDER = ["poshak","mukut","singhar","bansuri","accessories"];
 
 const DEMO_PRODUCTS = [
-  {category:"poshak", name:"Peacock Silk Poshak", description:"Raw silk, gota border, peacock motif dupatta", price:"", size_prices:"No.0-₹349, No.1-₹399, No.2-₹449, No.3-₹499, No.4-₹549, No.5-₹649", size_photos:"", has_size:"TRUE", photos:"", in_stock:"TRUE", active:"TRUE"},
-  {category:"poshak", name:"Bandhani Festive Set", description:"Cotton-silk bandhani with matching pagdi", price:"", size_prices:"No.0-₹299, No.1-₹349, No.2-₹399, No.3-₹449", size_photos:"", has_size:"TRUE", photos:"", in_stock:"FALSE", active:"TRUE"},
-  {category:"mukut", name:"Kundan Mukut", description:"Kundan stone work with hanging pearls", price:"₹349", has_size:"FALSE", photos:"", in_stock:"TRUE", active:"TRUE"},
-  {category:"singhar", name:"Full Singhar Set", description:"Haar + kamarbandh + bajuband + payal", price:"₹449", has_size:"FALSE", photos:"", in_stock:"TRUE", active:"TRUE"},
-  {category:"bansuri", name:"Classic Wood Bansuri", description:"Sandalwood finish, sized for No.2–4 idols", price:"₹99", has_size:"FALSE", photos:"", in_stock:"TRUE", active:"TRUE"}
+  {product_group:"PSK1", category:"poshak", name:"Peacock Silk Poshak", description:"Raw silk, gota border, peacock motif dupatta", size:"No.0", price:"₹349", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {product_group:"PSK1", category:"poshak", name:"Peacock Silk Poshak", description:"Raw silk, gota border, peacock motif dupatta", size:"No.1", price:"₹399", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {product_group:"PSK1", category:"poshak", name:"Peacock Silk Poshak", description:"Raw silk, gota border, peacock motif dupatta", size:"No.2", price:"₹449", photos:"", in_stock:"FALSE", active:"TRUE"},
+  {product_group:"PSK2", category:"poshak", name:"Bandhani Festive Set", description:"Cotton-silk bandhani with matching pagdi", size:"No.0", price:"₹299", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {product_group:"PSK2", category:"poshak", name:"Bandhani Festive Set", description:"Cotton-silk bandhani with matching pagdi", size:"No.1", price:"₹349", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {product_group:"", category:"mukut", name:"Kundan Mukut", description:"Kundan stone work with hanging pearls", size:"", price:"₹349", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {product_group:"", category:"singhar", name:"Full Singhar Set", description:"Haar + kamarbandh + bajuband + payal", size:"", price:"₹449", photos:"", in_stock:"TRUE", active:"TRUE"},
+  {product_group:"", category:"bansuri", name:"Classic Wood Bansuri", description:"Sandalwood finish, sized for No.2–4 idols", size:"", price:"₹99", photos:"", in_stock:"TRUE", active:"TRUE"}
 ];
 
 function truthy(v){ return /^(true|yes|1|in stock)$/i.test(String(v||"").trim()); }
 
-// Builds a reusable photo frame. Call .setPhotos("url1,url2") to (re)populate it —
-// used both for the initial render and whenever the buyer changes size.
+// Builds a reusable photo frame. Call .setPhotos("url1,url2") to (re)populate it.
 function createPhotoFrame(iconKey){
   const wrap = document.createElement("div");
   wrap.className = "arch-frame";
@@ -247,139 +249,132 @@ function createPhotoFrame(iconKey){
     inner.appendChild(carousel);
   }
 
+  setPhotos("");
   return {element: wrap, setPhotos};
 }
 
-// Parses a size_photos cell like "No.0-url1,url2; No.1-url3,url4" into [{label, photos}]
-function parseSizePhotos(str){
-  return (str||"").split(";").map(chunk => {
-    const idx = chunk.indexOf("-");
-    if(idx === -1) return null;
-    const label = chunk.slice(0, idx).trim();
-    const photos = chunk.slice(idx+1).trim();
-    if(!label) return null;
-    return {label, photos};
-  }).filter(Boolean);
+// Groups raw sheet rows: rows sharing a non-blank product_group become ONE card
+// with a size dropdown; rows with a blank product_group are their own standalone card.
+function groupRows(rows){
+  const groups = {};
+  const standalone = [];
+  rows.forEach(r => {
+    const pg = (r.product_group||"").trim();
+    const active = truthy(r.active);
+    if(!active) return; // inactive rows are simply skipped
+    if(pg){
+      (groups[pg] = groups[pg] || []).push(r);
+    } else {
+      standalone.push(r);
+    }
+  });
+  const cards = [];
+  Object.values(groups).forEach(variants => {
+    if(!variants.length) return;
+    cards.push({kind:"grouped", variants, category:(variants[0].category||"").trim().toLowerCase(),
+                name:variants[0].name, description:variants[0].description});
+  });
+  standalone.forEach(r => cards.push({kind:"single", item:r, category:(r.category||"").trim().toLowerCase()}));
+  return cards;
 }
 
-// Parses a size_prices cell like "No.0-299, No.1-349, No.2-399" into [{label,price}]
-function parseSizePrices(str){
-  return (str||"").split(",").map(pair => {
-    const idx = pair.indexOf("-");
-    if(idx === -1) return null;
-    const label = pair.slice(0, idx).trim();
-    const price = pair.slice(idx+1).trim();
-    if(!label || !price) return null;
-    return {label, price};
-  }).filter(Boolean);
-}
-
-const DEFAULT_SIZES = ["No.0","No.1","No.2","No.3","No.4","No.5","Custom"];
-
-function buildCard(item){
-  const cat = (item.category||"").trim().toLowerCase();
-  const inStock = truthy(item.in_stock);
-  const hasSize = truthy(item.has_size);
-  const sizePrices = hasSize ? parseSizePrices(item.size_prices) : [];
-  const sizePhotos = hasSize ? parseSizePhotos(item.size_photos) : [];
-  const usingPerSizePrice = sizePrices.length > 0;
-
+function buildCard(card){
+  const cat = card.category;
   const cardEl = document.createElement("div");
-  cardEl.className = "card" + (inStock ? "" : " out-of-stock");
-
-  if(!inStock){
-    const ribbon = document.createElement("div");
-    ribbon.className = "oos-ribbon";
-    ribbon.textContent = "Sold";
-    cardEl.appendChild(ribbon);
-  }
+  cardEl.className = "card";
 
   const photoFrame = createPhotoFrame(cat);
   cardEl.appendChild(photoFrame.element);
 
-  function photosForLabel(label){
-    if(label){
-      const match = sizePhotos.find(sp => sp.label === label);
-      if(match && match.photos) return match.photos;
-    }
-    return item.photos || ""; // falls back to the general photos column
-  }
-
-  const initialLabel = usingPerSizePrice ? sizePrices[0].label : (hasSize ? DEFAULT_SIZES[2] : null);
-  photoFrame.setPhotos(photosForLabel(initialLabel));
-
-  const initialPrice = usingPerSizePrice ? sizePrices[0].price : (item.price || "");
-
-  let sizeOptionsHtml = "";
-  if(hasSize){
-    if(usingPerSizePrice){
-      sizeOptionsHtml = sizePrices.map((sp,i) =>
-        `<option value="${sp.label}" data-price="${sp.price}" ${i===0?"selected":""}>${sp.label} — ${sp.price}</option>`
-      ).join("");
-    } else {
-      sizeOptionsHtml = DEFAULT_SIZES.map((s,i) =>
-        `<option value="${s}" ${i===2?"selected":""}>${s}</option>`
-      ).join("");
-    }
-  }
+  const ribbon = document.createElement("div");
+  ribbon.className = "oos-ribbon";
+  ribbon.textContent = "Sold";
+  ribbon.style.display = "none";
+  cardEl.appendChild(ribbon);
 
   const body = document.createElement("div");
   body.className = "card-body";
-  body.innerHTML = `
-    <h3>${item.name || ""}</h3>
-    <p class="desc">${item.description || ""}</p>
-    <div class="price" id="price-${Math.random().toString(36).slice(2)}">${initialPrice}</div>
-    ${hasSize ? `<select class="size-select">${sizeOptionsHtml}</select>` : ""}
-    <a class="wa-btn ${inStock ? "" : "oos"}" target="_blank">
-      <span>💬</span> ${inStock ? "Enquire on WhatsApp" : "Notify me when back"}
-    </a>
-  `;
   cardEl.appendChild(body);
 
-  const waBtn = body.querySelector(".wa-btn");
-  const sizeSelect = body.querySelector(".size-select");
-  const priceEl = body.querySelector(".price");
+  const waBtnHtml = `<a class="wa-btn" target="_blank"><span>💬</span> <span class="wa-label">Enquire on WhatsApp</span></a>`;
 
-  function currentPrice(){
-    if(usingPerSizePrice && sizeSelect){
-      const opt = sizeSelect.options[sizeSelect.selectedIndex];
-      return opt ? opt.dataset.price : initialPrice;
-    }
-    return item.price || "";
+  if(card.kind === "single"){
+    const item = card.item;
+    const inStock = truthy(item.in_stock);
+    cardEl.classList.toggle("out-of-stock", !inStock);
+    ribbon.style.display = inStock ? "none" : "block";
+    photoFrame.setPhotos(item.photos);
+    body.innerHTML = `
+      <h3>${item.name || ""}</h3>
+      <p class="desc">${item.description || ""}</p>
+      <div class="price">${item.price || ""}</div>
+      ${waBtnHtml}
+    `;
+    const waBtn = body.querySelector(".wa-btn");
+    const waLabel = body.querySelector(".wa-label");
+    if(!inStock) waBtn.classList.add("oos");
+    waLabel.textContent = inStock ? "Enquire on WhatsApp" : "Notify me when back";
+    let msg = inStock
+      ? `Jai Shree Krishna! I'm interested in the ${item.name} (${item.price || ""}). Please share more photos and availability.`
+      : `Jai Shree Krishna! Please let me know when the ${item.name} is back in stock.`;
+    waBtn.href = `https://wa.me/${CONFIG.waNumber}?text=${encodeURIComponent(msg)}`;
+    return cardEl;
   }
 
-  function updateWaLink(){
-    if(usingPerSizePrice) priceEl.textContent = currentPrice();
-    if(hasSize && sizeSelect) photoFrame.setPhotos(photosForLabel(sizeSelect.value));
+  // grouped (size-variant) card
+  const variants = card.variants;
+  const firstInStockIdx = variants.findIndex(v => truthy(v.in_stock));
+  const startIdx = firstInStockIdx === -1 ? 0 : firstInStockIdx;
+
+  body.innerHTML = `
+    <h3>${card.name || ""}</h3>
+    <p class="desc">${card.description || ""}</p>
+    <div class="price"></div>
+    <select class="size-select">
+      ${variants.map((v,i) => `<option value="${i}" ${i===startIdx?"selected":""}>${v.size || "Size "+(i+1)} — ${truthy(v.in_stock) ? (v.price||"") : "Sold out"}</option>`).join("")}
+    </select>
+    ${waBtnHtml}
+  `;
+  const priceEl = body.querySelector(".price");
+  const sizeSelect = body.querySelector(".size-select");
+  const waBtn = body.querySelector(".wa-btn");
+  const waLabel = body.querySelector(".wa-label");
+
+  function applyVariant(){
+    const v = variants[Number(sizeSelect.value)];
+    const inStock = truthy(v.in_stock);
+    cardEl.classList.toggle("out-of-stock", !inStock);
+    ribbon.style.display = inStock ? "none" : "block";
+    photoFrame.setPhotos(v.photos);
+    priceEl.textContent = v.price || "";
+    waBtn.classList.toggle("oos", !inStock);
+    waLabel.textContent = inStock ? "Enquire on WhatsApp" : "Notify me when back";
     let msg = inStock
-      ? `Jai Shree Krishna! I'm interested in the ${item.name}`
-      : `Jai Shree Krishna! Please let me know when the ${item.name} is back in stock`;
-    if(sizeSelect && inStock) msg += ` — size ${sizeSelect.value}`;
-    if(inStock){
-      const p = currentPrice();
-      if(p) msg += ` (${p})`;
-      msg += `. Please share more photos and availability.`;
-    }
+      ? `Jai Shree Krishna! I'm interested in the ${card.name} — size ${v.size} (${v.price || ""}). Please share more photos and availability.`
+      : `Jai Shree Krishna! Please let me know when the ${card.name} (size ${v.size}) is back in stock.`;
     waBtn.href = `https://wa.me/${CONFIG.waNumber}?text=${encodeURIComponent(msg)}`;
   }
-  if(sizeSelect) sizeSelect.addEventListener("change", updateWaLink);
-  updateWaLink();
+  sizeSelect.addEventListener("change", applyVariant);
+  applyVariant();
 
   return cardEl;
 }
 
-function render(products){
-  const active = products.filter(p => truthy(p.active));
+function render(rows){
   const nav = document.getElementById("catNav");
   const root = document.getElementById("catalogueRoot");
   nav.innerHTML = ""; root.innerHTML = "";
 
+  // Defensive: a single malformed row should never take down the whole page.
+  let cards = [];
+  try{
+    cards = groupRows(rows).filter(c => c.category);
+  } catch(e){
+    console.error("groupRows failed", e);
+  }
+
   const grouped = {};
-  active.forEach(p => {
-    const cat = (p.category||"").trim().toLowerCase();
-    if(!cat) return;
-    (grouped[cat] = grouped[cat] || []).push(p);
-  });
+  cards.forEach(c => { (grouped[c.category] = grouped[c.category] || []).push(c); });
 
   const presentCats = CATEGORY_ORDER.filter(c => grouped[c] && grouped[c].length)
     .concat(Object.keys(grouped).filter(c => !CATEGORY_ORDER.includes(c)));
@@ -412,7 +407,10 @@ function render(products){
       <div class="grid"></div>
     `;
     const grid = section.querySelector(".grid");
-    grouped[cat].forEach(item => grid.appendChild(buildCard(item)));
+    grouped[cat].forEach(c => {
+      try{ grid.appendChild(buildCard(c)); }
+      catch(e){ console.error("buildCard failed for", c, e); }
+    });
     root.appendChild(section);
   });
 
@@ -443,11 +441,13 @@ function loadCatalogue(){
   fetch(CONFIG.sheetCsvUrl + bustCache, {cache: "no-store"})
     .then(r => { if(!r.ok) throw new Error("fetch failed"); return r.text(); })
     .then(csv => {
+      csv = csv.replace(/^\uFEFF/, ''); // strips a hidden character Google Sheets sometimes adds, which can break the first column's header
       const parsed = Papa.parse(csv, {header:true, skipEmptyLines:true});
       if(!parsed.data.length) throw new Error("empty sheet");
       render(parsed.data);
     })
-    .catch(() => {
+    .catch((e) => {
+      console.error(e);
       showBanner("error", "Couldn't load your product Sheet right now — showing demo data instead. Check the Sheet is published and the link in <code>CONFIG.sheetCsvUrl</code> is correct.");
       render(DEMO_PRODUCTS);
     });
