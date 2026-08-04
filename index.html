@@ -30,8 +30,9 @@
   .brand-mark{ font-size:0.85rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:18px; }
   header h1{ font-size:clamp(2.4rem, 6vw, 4rem); margin:0 0 10px; color:var(--ivory); }
   header p.tagline{ font-family:'Cormorant Garamond', serif; font-size:1.35rem; font-style:italic; color:var(--gold-soft); margin:0 auto 36px; max-width:520px; }
-  .arch-hero{ width:220px; height:260px; margin:0 auto; background:linear-gradient(180deg, var(--blush), var(--gold-soft)); border-radius:110px 110px 6px 6px; border:3px solid var(--gold); position:relative; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 8px rgba(251,243,231,0.08), 0 20px 40px rgba(0,0,0,0.25); }
+  .arch-hero{ width:220px; height:260px; margin:0 auto; background:linear-gradient(180deg, var(--blush), var(--gold-soft)); border-radius:110px 110px 6px 6px; border:3px solid var(--gold); position:relative; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 8px rgba(251,243,231,0.08), 0 20px 40px rgba(0,0,0,0.25); overflow:hidden; }
   .arch-hero svg{ width:110px; height:130px; }
+  .arch-hero img{ width:100%; height:100%; object-fit:cover; }
   .cta-row{ margin-top:40px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
   .btn{ display:inline-flex; align-items:center; gap:8px; padding:12px 26px; border-radius:999px; font-family:'Jost',sans-serif; font-weight:500; font-size:0.95rem; text-decoration:none; cursor:pointer; border:1px solid transparent; transition:transform .15s ease; }
   .btn:hover{ transform:translateY(-2px); }
@@ -104,9 +105,11 @@
 const CONFIG = {
   brandName: "Shringar Sundar",                 // your business name
   tagline: "Poshak, Mukut & Singhar for your Laddu Gopal — stitched by hand, sized to your idol.",
-  waNumber: "919461156911",                     // WhatsApp number, country code, no + or spaces
+  waNumber: "910000000000",                     // WhatsApp number, country code, no + or spaces
   footerLine: "Made to order · Ships across India",
   // Paste your published Google Sheet CSV link here (see setup guide). Leave as-is to see demo data.
+  // Leave blank to keep the default icon. Paste an image link (e.g. from imgbb) to show a real photo instead.
+  heroImage: "",
   sheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTRGuhenfnTO57aFf6AP5Opj229EzwcUApik_Wnj_yJa5oZ4LTPx9WjO0ot1a6DwMMU6ErlFmQEszcv/pub?gid=2018736595&single=true&output=csv"
 };
 </script>
@@ -158,6 +161,9 @@ document.getElementById("footerBrand").textContent = CONFIG.brandName;
 document.getElementById("footerLine").textContent = CONFIG.footerLine;
 document.getElementById("headerWaBtn").href = `https://wa.me/${CONFIG.waNumber}?text=${encodeURIComponent("Jai Shree Krishna! I'd like to see your full catalogue.")}`;
 document.title = CONFIG.brandName + " — Laddu Gopal Poshak & Singhar";
+if (CONFIG.heroImage && CONFIG.heroImage.trim()) {
+  document.querySelector(".arch-hero").innerHTML = `<img src="${CONFIG.heroImage}" alt="${CONFIG.brandName}">`;
+}
 
 const iconSets = {
   poshak: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 8c-14 0-16 14-16 22l-6 55c0 6 6 7 22 7s22-1 22-7l-6-55c0-8-2-22-16-22z" fill="#7A1F2B"/><path d="M50 8c-6 0-9 5-9 12h18c0-7-3-12-9-12z" fill="#C9A227"/></svg>`,
