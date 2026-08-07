@@ -168,7 +168,7 @@ if (CONFIG.heroImage && CONFIG.heroImage.trim()) {
 const iconSets = {
   poshak: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 8c-14 0-16 14-16 22l-6 55c0 6 6 7 22 7s22-1 22-7l-6-55c0-8-2-22-16-22z" fill="#7A1F2B"/><path d="M50 8c-6 0-9 5-9 12h18c0-7-3-12-9-12z" fill="#C9A227"/></svg>`,
   mukut: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M15 70 L20 35 L38 55 L50 25 L62 55 L80 35 L85 70 Z" fill="#C9A227"/><rect x="15" y="70" width="70" height="10" rx="2" fill="#7A1F2B"/><circle cx="50" cy="30" r="5" fill="#0E5C55"/></svg>`,
-  singhar: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="10" fill="#C9A227"/><path d="M30 32 Q50 65 70 32" stroke="#C9A227" stroke-width="4" fill="none"/><circle cx="50" cy="66" r="8" fill="#7A1F2B"/></svg>`,
+  shringar: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="30" r="10" fill="#C9A227"/><path d="M30 32 Q50 65 70 32" stroke="#C9A227" stroke-width="4" fill="none"/><circle cx="50" cy="66" r="8" fill="#7A1F2B"/></svg>`,
   bansuri: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="15" y="46" width="70" height="8" rx="4" fill="#8a5a2b" transform="rotate(-20 50 50)"/><circle cx="30" cy="40" r="2" fill="#3a2410" transform="rotate(-20 50 50)"/><circle cx="42" cy="45" r="2" fill="#3a2410" transform="rotate(-20 50 50)"/><circle cx="54" cy="50" r="2" fill="#3a2410" transform="rotate(-20 50 50)"/></svg>`,
   accessories: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="55" rx="35" ry="20" fill="#E8D8A8" stroke="#C9A227" stroke-width="2"/><ellipse cx="50" cy="50" rx="35" ry="20" fill="#0E5C55"/></svg>`,
   default: `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="30" fill="#C9A227"/></svg>`
@@ -177,11 +177,11 @@ const iconSets = {
 const CATEGORY_META = {
   poshak:       {label:"Poshak",              eyebrow:"Season · Festive", desc:"Each poshak is stitched to your Thakurji's exact size number. Select size before enquiring — no fitting surprises."},
   mukut:        {label:"Mukut",               eyebrow:"Shringar",         desc:"Crowns in kundan, moti and meenakari work — matched to poshak size, not idol size."},
-  singhar:      {label:"Singhar · Jewellery", eyebrow:"Shringar",         desc:"Haar, kamarbandh, bajuband and payal sets — sold individually or as full singhar sets."},
+  shringar:      {label:"Shringar · Jewellery", eyebrow:"Shringar",         desc:"Haar, kamarbandh, bajuband and payal sets — sold individually or as full shringar sets."},
   bansuri:      {label:"Bansuri",              eyebrow:"Signature",        desc:"Hand-finished flutes in wood and metal tones, sized to sit naturally in Thakurji's hands."},
   accessories:  {label:"Accessories",          eyebrow:"Everyday",         desc:"Asan, jhula bedding, thalis and other everyday seva essentials."}
 };
-const CATEGORY_ORDER = ["poshak","mukut","singhar","bansuri","accessories"];
+const CATEGORY_ORDER = ["poshak","mukut","shringar","bansuri","accessories"];
 
 const DEMO_PRODUCTS = [
   {product_group:"PSK1", category:"poshak", name:"Peacock Silk Poshak", description:"Raw silk, gota border, peacock motif dupatta", size:"No.0", price:"₹349", photos:"", in_stock:"TRUE", active:"TRUE"},
